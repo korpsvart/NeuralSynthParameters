@@ -1,12 +1,3 @@
-/*
-  ==============================================================================
-
-    SynthVoice.h
-    Created: 10 Apr 2022 8:10:44pm
-    Author:  Ricky
-
-  ==============================================================================
-*/
 
 #pragma once
 //#include <JuceHeader.h>
@@ -43,11 +34,6 @@ public:
     void updateADSRA2(float attack, float decay, float sustain, float release);
 
     void updateADSRc(float attack, float decay, float sustain, float release);
-
-
-    
-    //Public to be able to access it in the plugin processor
-    juce::OwnedArray<juce::AudioBuffer<float>> synthBuffers; //Local buffers to temporarily store synth output (one for each partial)
 
 
 private:

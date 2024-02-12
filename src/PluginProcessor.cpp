@@ -69,7 +69,6 @@ FMPluginProcessor::FMPluginProcessor()
 
     //the JUCE_MODAL_LOOPS_PERMITTED=1 definition must be specified for browseForFileToOpen to work
     magicState.addTrigger("loadFile", [&] { loadFile(); });
-    //auto fileButton = magicState.createAndAddObject<juce::TextButton>("fileButton");
 
 
 
@@ -148,15 +147,6 @@ void FMPluginProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     // initialisation that you need..
 
 
-    //For the moment we use this place to test inference just at the start
-
-    juce::File audioFile("C:/Users/Ricky/projects/music/fm_synth_libtorch/audio_examples/bass_synthetic_008-039-025.wav");
-
-    juce::AudioBuffer<float> audioBuffer = loadAudioIntoBuffer(audioFile);
-
-    torch::Dict<torch::IValue, torch::IValue> synthParams = estimateSynthParams(audioBuffer);
-
-
     //Prepare the synths
     for (int i = 0; i < synth->getNumVoices(); i++)
     {
@@ -168,9 +158,7 @@ void FMPluginProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     }
     synth->setCurrentPlaybackSampleRate(sampleRate);
 
-    //Test loading all values
 
-    updateAllParameters(synthParams);
 
 
 }
@@ -179,6 +167,11 @@ void FMPluginProcessor::releaseResources()
 {
     // When playback stops, you can use this as an opportunity to free up any
     // spare memory, etc.
+
+
+    //Clear synths
+    synth->clearSounds();
+    synth->clearVoices();
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -612,7 +605,7 @@ void FMPluginProcessor::updateAllParameters(torch::Dict<torch::IValue, torch::IV
             DBG(val1 << "," << val2);
 
 
-            //All params in tensor are normalized [0,1]. Remap them here
+            //All params in tensor are normalized [0,1]. The remapping is done automatically by the RangedAudioParameter class
 
             juce::RangedAudioParameter *p1=  magicState.getParameter(ref_key_str + "_1");
             float denormalizedValue1 = p1->convertFrom0to1(val1);

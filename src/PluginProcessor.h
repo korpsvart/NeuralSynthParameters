@@ -76,9 +76,7 @@ private:
 
     juce::AudioProcessorValueTreeState apvts;
 
-    //foleys::MagicProcessorState magicState{ *this };
 
- 
 
     //Variables for neural part
     NeuralNetwork nn;
@@ -90,11 +88,8 @@ private:
     std::vector<float> audioData;
 
 
-
-
     //Functions for handling tensors, audio files
     //and inference
-
 
 
     juce::AudioBuffer<float> loadAudioIntoBuffer(const juce::File& audioFile);
