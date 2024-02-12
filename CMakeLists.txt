@@ -37,6 +37,11 @@ juce_add_plugin(fm-torchknob
     PRODUCT_NAME "NeuralSynthParams")        # The name of the final executable, which can differ from the target name
 
 
+juce_add_binary_data(fm-torchknob_data
+	SOURCES
+	resources/magic.xml)
+
+
 
 juce_generate_juce_header(fm-torchknob)
 
@@ -64,6 +69,7 @@ target_compile_definitions(fm-torchknob
         # JUCE_WEB_BROWSER and JUCE_USE_CURL would be on by default, but you might not need them.
         JUCE_WEB_BROWSER=0  # If you remove this, add `NEEDS_WEB_BROWSER TRUE` to the `juce_add_plugin` call
         JUCE_USE_CURL=0     # If you remove this, add `NEEDS_CURL TRUE` to the `juce_add_plugin` call
+        JUCE_MODAL_LOOPS_PERMITTED=1
         JUCE_VST3_CAN_REPLACE_VST2=0)
 
 
@@ -73,12 +79,15 @@ target_link_libraries(fm-torchknob
         juce::juce_audio_utils
         juce::juce_dsp
         foleys_gui_magic
+        fm-torchknob_data
         # add torch to the libraries to link against
         "${TORCH_LIBRARIES}"
     PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
         juce::juce_recommended_warning_flags)
+
+
 
 
 # The following code block is suggested to be used on Windows.

@@ -10,6 +10,7 @@
 //#include "PluginEditor.h"
 #include "SynthSound.h"
 #include "SynthVoice.h"
+#include <build/juce_binarydata_fm-torchknob_data/JuceLibraryCode/BinaryData.h>
 
 
 //==============================================================================
@@ -58,6 +59,17 @@ FMPluginProcessor::FMPluginProcessor()
     apvts.addParameterListener("DE_C", this);
     apvts.addParameterListener("SU_C", this);
     apvts.addParameterListener("RE_C", this);
+
+    myChooser = std::make_unique<juce::FileChooser>("Select an audio file to estimate the synthesizer parameters...",
+        juce::File::getSpecialLocation(juce::File::userHomeDirectory),
+        "*.wav");
+
+
+    magicState.setGuiValueTree(BinaryData::magic_xml, BinaryData::magic_xmlSize); //load XML
+
+    //the JUCE_MODAL_LOOPS_PERMITTED=1 definition must be specified for browseForFileToOpen to work
+    magicState.addTrigger("loadFile", [&] { loadFile(); });
+    //auto fileButton = magicState.createAndAddObject<juce::TextButton>("fileButton");
 
 
 
@@ -138,14 +150,11 @@ void FMPluginProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 
     //For the moment we use this place to test inference just at the start
 
-    juce::AudioBuffer<float> audioBuffer = loadAudioIntoBuffer("C:/Users/Ricky/projects/music/fm_synth_libtorch/audio_examples/bass_synthetic_008-039-025.wav");
+    juce::File audioFile("C:/Users/Ricky/projects/music/fm_synth_libtorch/audio_examples/bass_synthetic_008-039-025.wav");
+
+    juce::AudioBuffer<float> audioBuffer = loadAudioIntoBuffer(audioFile);
 
     torch::Dict<torch::IValue, torch::IValue> synthParams = estimateSynthParams(audioBuffer);
-
-
-    //printSynthParamsDict(synthParams); //Print for testing
-
-
 
 
     //Prepare the synths
@@ -214,6 +223,21 @@ void FMPluginProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mi
 
 
     magicState.processMidiBuffer(midiMessages, buffer.getNumSamples());
+
+    if (fileUpdated)
+    {
+
+        fileUpdated = false;
+        myChooser->getResult();
+
+        //Perform estimation of synth params
+        juce::File audioFile = myChooser->getResult();
+        juce::AudioBuffer<float> audioBuffer = loadAudioIntoBuffer(audioFile);
+
+        torch::Dict<torch::IValue, torch::IValue> synthParams = estimateSynthParams(audioBuffer);
+
+        updateAllParameters(synthParams);
+    }
 
     if (updatedADSRa1)
     {
@@ -313,9 +337,8 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 }
 
 
-juce::AudioBuffer<float> FMPluginProcessor::loadAudioIntoBuffer(const std::string& fileName)
+juce::AudioBuffer<float> FMPluginProcessor::loadAudioIntoBuffer(const juce::File& audioFile)
 {
-    juce::File audioFile("C:/Users/Ricky/projects/music/fm_synth_libtorch/audio_examples/bass_synthetic_008-039-025.wav");
 
     juce::AudioFormatManager formatManager;
     formatManager.registerBasicFormats();
@@ -340,6 +363,7 @@ torch::Tensor FMPluginProcessor::audioBufferToTensor(const juce::AudioBuffer<flo
 
     //For now just read channel 0
     const float* channelData = audioBuffer.getReadPointer(0);
+    audioData.clear();
     audioData.insert(audioData.end(), channelData, channelData + numSamples);
 
     //Create the audio tensor
@@ -376,6 +400,11 @@ torch::Dict<torch::IValue, torch::IValue> FMPluginProcessor::estimateSynthParams
 
     return getOutputDict(inputDict);
     
+}
+void FMPluginProcessor::loadFile()
+{
+    fileUpdated = myChooser->browseForFileToOpen(); //returns true if a file was chosen
+
 }
 void FMPluginProcessor::printOutputTensorEntry(torch::IValue key, torch::Dict<torch::IValue, torch::IValue>& dict)
 {

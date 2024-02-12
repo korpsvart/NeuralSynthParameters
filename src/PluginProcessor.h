@@ -76,7 +76,7 @@ private:
 
     juce::AudioProcessorValueTreeState apvts;
 
-    foleys::MagicProcessorState magicState{ *this };
+    //foleys::MagicProcessorState magicState{ *this };
 
  
 
@@ -97,7 +97,7 @@ private:
 
 
 
-    juce::AudioBuffer<float> loadAudioIntoBuffer(const std::string& fileName);
+    juce::AudioBuffer<float> loadAudioIntoBuffer(const juce::File& audioFile);
 
     //Convert audio buffer to tensor
     torch::Tensor audioBufferToTensor(const juce::AudioBuffer<float>& audioBuffer);
@@ -108,6 +108,10 @@ private:
     torch::Dict<torch::IValue, torch::IValue> getOutputDict(torch::jit::IValue& inputDict);
 
     torch::Dict<torch::IValue, torch::IValue> estimateSynthParams(const juce::AudioBuffer<float>& audioBuffer);
+
+
+    //File functions
+    void loadFile();
 
 
     void printOutputTensorEntry(torch::IValue key, torch::Dict<torch::IValue, torch::IValue>& dict); //For debugging
@@ -139,6 +143,11 @@ private:
     bool updatedADSRa2;
     bool updatedADSRc;
 
+
+    //File loading
+
+    std::unique_ptr<juce::FileChooser> myChooser;
+    bool fileUpdated = false;
 
 
 
