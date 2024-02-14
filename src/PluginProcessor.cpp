@@ -10,7 +10,7 @@
 //#include "PluginEditor.h"
 #include "SynthSound.h"
 #include "SynthVoice.h"
-#include <build/juce_binarydata_fm-torchknob_data/JuceLibraryCode/BinaryData.h>
+#include <build/juce_binarydata_neural-synth-params_data/JuceLibraryCode/BinaryData.h>
 
 
 //==============================================================================

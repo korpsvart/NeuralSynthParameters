@@ -18,11 +18,11 @@ add_subdirectory(../JUCE ./JUCE)                    # If you've put JUCE in a su
 juce_add_modules (./foleys_gui_magic ALIAS_NAMESPACE foleys)
 
 
-juce_add_plugin(fm-torchknob
+juce_add_plugin(neural-synth-params
     # VERSION ...                               # Set this if the plugin version is different to the project version
     # ICON_BIG ...                              # ICON_* arguments specify a path to an image file to use as an icon for the Standalone
     # ICON_SMALL ...
-    COMPANY_NAME Yeeking                          # Specify the name of the plugin's author
+    COMPANY_NAME Korpsvart                          # Specify the name of the plugin's author
     DONT_SET_USING_JUCE_NAMESPACE TRUE
     # IS_SYNTH TRUE/FALSE                       # Is this a synth or an effect?
     # NEEDS_MIDI_INPUT TRUE/FALSE               # Does the plugin need midi input?
@@ -37,15 +37,15 @@ juce_add_plugin(fm-torchknob
     PRODUCT_NAME "NeuralSynthParams")        # The name of the final executable, which can differ from the target name
 
 
-juce_add_binary_data(fm-torchknob_data
+juce_add_binary_data(neural-synth-params_data
 	SOURCES
 	resources/magic.xml)
 
 
 
-juce_generate_juce_header(fm-torchknob)
+juce_generate_juce_header(neural-synth-params)
 
-target_sources(fm-torchknob
+target_sources(neural-synth-params
     PRIVATE
         src/PluginProcessor.cpp
 	src/NeuralNetwork.h
@@ -61,7 +61,7 @@ target_link_libraries(test_nn "${TORCH_LIBRARIES}")
 set_property(TARGET test_nn PROPERTY CXX_STANDARD 14)
 
 
-target_compile_definitions(fm-torchknob
+target_compile_definitions(neural-synth-params
     PUBLIC
         # switch the following off in the product to hide editor
         FOLEYS_SHOW_GUI_EDITOR_PALLETTE=1
@@ -73,13 +73,13 @@ target_compile_definitions(fm-torchknob
         JUCE_VST3_CAN_REPLACE_VST2=0)
 
 
-target_link_libraries(fm-torchknob
+target_link_libraries(neural-synth-params
     PRIVATE
         # AudioPluginData           # If we'd created a binary data target, we'd link to it here
         juce::juce_audio_utils
         juce::juce_dsp
         foleys_gui_magic
-        fm-torchknob_data
+        neural-synth-params_data
         # add torch to the libraries to link against
         "${TORCH_LIBRARIES}"
     PUBLIC
@@ -94,18 +94,18 @@ target_link_libraries(fm-torchknob
 # According to https://github.com/pytorch/pytorch/issues/25457,
 # the DLLs need to be copied to avoid memory errors.
 if (MSVC)
-#  set_property(TARGET fm-torchknob_Standalone
+#  set_property(TARGET neural-synth-params_Standalone
 #
 #              PROPERTY
 #               MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 
   file(GLOB TORCH_DLLS "${TORCH_INSTALL_PREFIX}/lib/*.dll")
-  add_custom_command(TARGET fm-torchknob_Standalone
+  add_custom_command(TARGET neural-synth-params_Standalone
                      POST_BUILD
                      COMMAND ${CMAKE_COMMAND} -E copy_if_different
                      ${TORCH_DLLS}
-                     $<TARGET_FILE_DIR:fm-torchknob_Standalone>)
+                     $<TARGET_FILE_DIR:neural-synth-params_Standalone>)
   add_custom_command(TARGET test_nn
                      POST_BUILD
                      COMMAND ${CMAKE_COMMAND} -E copy_if_different
