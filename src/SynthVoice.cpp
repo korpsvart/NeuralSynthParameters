@@ -139,7 +139,7 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int sta
     }
 
 
-    applyReverb(outputBuffer);
+    //applyReverb(outputBuffer);
 
 
     bool active = adsrOsc1.isActive() || adsrOsc2.isActive();

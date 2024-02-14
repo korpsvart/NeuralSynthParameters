@@ -81,7 +81,7 @@ private:
 
     juce::dsp::Convolution convolution;
 
-    juce::dsp::ProcessSpec spec;
+    juce::dsp::ProcessSpec spec{};
 
 
 
