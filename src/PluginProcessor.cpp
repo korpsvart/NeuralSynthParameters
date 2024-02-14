@@ -474,19 +474,19 @@ juce::AudioProcessorValueTreeState::ParameterLayout FMPluginProcessor::createPar
 
     // ADSR 1 Params
     auto peak_a_1 = std::make_unique<juce::AudioParameterFloat>("PEAK_A_1", "Attack amplitude (ADSR 1)",
-        juce::NormalisableRange<float> {0.01f, 1.0f, 0.001f}, 0.01f);
+        juce::NormalisableRange<float> {0.00f, 1.0f, 0.001f}, 0.01f);
 
     auto at_a_1 = std::make_unique<juce::AudioParameterFloat>("AT_A_1", "Attack time (ADSR 1)",
-        juce::NormalisableRange<float> {0.01f, 4.0f, 0.001f}, 0.01f);
+        juce::NormalisableRange<float> {0.00f, 4.0f, 0.001f}, 0.01f);
 
     auto de_a_1 = std::make_unique<juce::AudioParameterFloat>("DE_A_1", "Decay time (ADSR 1)",
-        juce::NormalisableRange<float> {0.01f, 4.0f, 0.001f}, 0.01f);
+        juce::NormalisableRange<float> {0.00f, 4.0f, 0.001f}, 0.01f);
 
     auto su_a_1 = std::make_unique<juce::AudioParameterFloat>("SU_A_1", "Sustain level (ADSR 1)",
-        juce::NormalisableRange<float> {0.01f, 1.0f, 0.001f}, 0.01f);
+        juce::NormalisableRange<float> {0.00f, 1.0f, 0.001f}, 0.01f);
 
     auto re_a_1 = std::make_unique<juce::AudioParameterFloat>("RE_A_1", "Release time (ADSR 1)",
-        juce::NormalisableRange<float> {0.01f, 4.0f, 0.001f}, 0.01f);
+        juce::NormalisableRange<float> {0.00f, 4.0f, 0.001f}, 0.01f);
 
     auto groupADSR1 = std::make_unique<juce::AudioProcessorParameterGroup>("adsr1", "ADSR1", "|");
     groupADSR1->addChild(std::move(peak_a_1));
@@ -498,19 +498,19 @@ juce::AudioProcessorValueTreeState::ParameterLayout FMPluginProcessor::createPar
 
     // ADSR 2 Params
     auto peak_a_2 = std::make_unique<juce::AudioParameterFloat>("PEAK_A_2", "Attack amplitude (ADSR 1)",
-        juce::NormalisableRange<float> {0.01f, 1.0f, 0.001f}, 0.01f);
+        juce::NormalisableRange<float> {0.00f, 1.0f, 0.001f}, 0.01f);
 
     auto at_a_2 = std::make_unique<juce::AudioParameterFloat>("AT_A_2", "Attack time (ADSR 1)",
-        juce::NormalisableRange<float> {0.01f, 4.0f, 0.001f}, 0.01f);
+        juce::NormalisableRange<float> {0.00f, 4.0f, 0.001f}, 0.01f);
 
     auto de_a_2 = std::make_unique<juce::AudioParameterFloat>("DE_A_2", "Decay time (ADSR 1)",
-        juce::NormalisableRange<float> {0.01f, 4.0f, 0.001f}, 0.01f);
+        juce::NormalisableRange<float> {0.00f, 4.0f, 0.001f}, 0.01f);
 
     auto su_a_2 = std::make_unique<juce::AudioParameterFloat>("SU_A_2", "Sustain level (ADSR 1)",
-        juce::NormalisableRange<float> {0.01f, 1.0f, 0.001f}, 0.01f);
+        juce::NormalisableRange<float> {0.00f, 1.0f, 0.001f}, 0.01f);
 
     auto re_a_2 = std::make_unique<juce::AudioParameterFloat>("RE_A_2", "Release time (ADSR 1)",
-        juce::NormalisableRange<float> {0.01f, 4.0f, 0.001f}, 0.01f);
+        juce::NormalisableRange<float> {0.00f, 4.0f, 0.001f}, 0.01f);
 
     auto groupADSR2 = std::make_unique<juce::AudioProcessorParameterGroup>("adsr2", "ADSR2", "|");
     groupADSR2->addChild(std::move(peak_a_2));
@@ -521,7 +521,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout FMPluginProcessor::createPar
     layout.add(std::move(groupADSR2));
 
     float nyquist = getSampleRate() / 2;
-    if (nyquist == 0) nyquist = 20000.0; //Sometimes if called at the start it will be zero
+    //This should be adjusted (is also not clear how we should set it, considering the synthesiser in the network always generate file at 16kHz)
+    if (nyquist == 0) nyquist = 22000; //Sometimes if called at the start it will be zero. In that case we simply set this
 
     // ADSR C Params
     auto cut_floor = std::make_unique<juce::AudioParameterFloat>("CUT_FLOOR", "Minimum cutoff (ADSR C)",
@@ -531,16 +532,16 @@ juce::AudioProcessorValueTreeState::ParameterLayout FMPluginProcessor::createPar
         juce::NormalisableRange<float> {30.0f, nyquist, 1.0f}, 0.01f);
 
     auto at_c = std::make_unique<juce::AudioParameterFloat>("AT_C", "Attack time (ADSR C)",
-        juce::NormalisableRange<float> {0.01f, 4.0f, 0.001f}, 0.01f);
+        juce::NormalisableRange<float> {0.00f, 4.0f, 0.001f}, 0.01f);
 
     auto de_c = std::make_unique<juce::AudioParameterFloat>("DE_C", "Decay time (ADSR C)",
-        juce::NormalisableRange<float> {0.01f, 4.0f, 0.001f}, 0.01f);
+        juce::NormalisableRange<float> {0.00f, 4.0f, 0.001f}, 0.01f);
 
     auto su_c = std::make_unique<juce::AudioParameterFloat>("SU_C", "Sustain level (ADSR C)",
-        juce::NormalisableRange<float> {0.01f, 1.0f, 0.001f}, 0.01f);
+        juce::NormalisableRange<float> {0.00f, 1.0f, 0.001f}, 0.01f);
 
     auto re_c = std::make_unique<juce::AudioParameterFloat>("RE_C", "Release time (ADSR C)",
-        juce::NormalisableRange<float> {0.01f, 4.0f, 0.001f}, 0.01f);
+        juce::NormalisableRange<float> {0.00f, 4.0f, 0.001f}, 0.01f);
 
     auto groupADSRC = std::make_unique<juce::AudioProcessorParameterGroup>("adsrc", "ADSRC", "|");
     groupADSRC->addChild(std::move(cut_floor));
@@ -553,10 +554,10 @@ juce::AudioProcessorValueTreeState::ParameterLayout FMPluginProcessor::createPar
 
     // Oscillator params
     auto osc_mix_1 = std::make_unique<juce::AudioParameterFloat>("M_OSC_1", "Wavetype mix (Saw-Square)",
-        juce::NormalisableRange<float> {0.01f, 1.0f, 0.001f}, 0.01f);
+        juce::NormalisableRange<float> {0.00f, 1.0f, 0.001f}, 0.01f);
 
     auto osc_mix_2 = std::make_unique<juce::AudioParameterFloat>("M_OSC_2", "Wavetype mix (Saw-Square)",
-        juce::NormalisableRange<float> {0.01f, 1.0f, 0.001f}, 0.01f);
+        juce::NormalisableRange<float> {0.00f, 1.0f, 0.001f}, 0.01f);
 
     auto f0_mult = std::make_unique<juce::AudioParameterFloat>("F0_MULT", "Frequency Ratio",
         juce::NormalisableRange<float> {1.0f, 8.0f, 0.1f}, 3.0f);
