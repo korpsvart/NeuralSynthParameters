@@ -31,9 +31,10 @@ FMPluginProcessor::FMPluginProcessor()
 
     //Create synth voices
 
-    //add voicesNumber voices to the synth (allows voicesNumber MIDI notes to be played at the same time)
+    //add 8 voices to the synth (allows 8 MIDI notes to be played at the same time)
 
-    synth = new juce::Synthesiser();
+    //synth = new juce::Synthesiser();
+    synth = std::make_unique<juce::Synthesiser>();
     synth->addSound(new SynthSound());
 
     for (size_t voice = 0; voice < 8; voice++)
@@ -186,7 +187,6 @@ void FMPluginProcessor::releaseResources()
     synth->clearSounds();
     synth->clearVoices();
 
-    free(synth);
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -649,12 +649,12 @@ void FMPluginProcessor::updateAllParameters(torch::Dict<torch::IValue, torch::IV
             //All params in tensor are normalized [0,1]. The remapping is done automatically by the RangedAudioParameter class
 
             juce::RangedAudioParameter *p1=  magicState.getParameter(ref_key_str + "_1");
-            float denormalizedValue1 = p1->convertFrom0to1(val1);
+            float denormalizedValue1 = p1->convertFrom0to1(val1); //only for debugging
             p1->setValueNotifyingHost(val1);
 
 
             juce::RangedAudioParameter* p2 = magicState.getParameter(ref_key_str + "_2");
-            float denormalizedValue2 = p2->convertFrom0to1(val2);
+            float denormalizedValue2 = p2->convertFrom0to1(val2); //only for debugging
             p2->setValueNotifyingHost(val2);
 
             DBG("Denormalized: " << denormalizedValue1 << "," << denormalizedValue2);

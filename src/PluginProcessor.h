@@ -68,7 +68,7 @@ private:
 
     //Synth variables
 
-    juce::Synthesiser* synth;
+    std::unique_ptr<juce::Synthesiser> synth;
 
     //Parameters
 

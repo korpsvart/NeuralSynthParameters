@@ -130,7 +130,7 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int sta
     {
         auto currentSample = computeOscOutput(0);
 
-        if (abs(currentSample) > 1) DBG("Warning clipping");
+        //if (abs(currentSample) > 1) DBG("Warning clipping");
 
         for (auto i = outputBuffer.getNumChannels(); --i >= 0;)
             outputBuffer.addSample(i, startSample, currentSample);
