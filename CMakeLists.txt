@@ -64,7 +64,7 @@ set_property(TARGET test_nn PROPERTY CXX_STANDARD 14)
 target_compile_definitions(neural-synth-params
     PUBLIC
         # switch the following off in the product to hide editor
-        FOLEYS_SHOW_GUI_EDITOR_PALLETTE=1
+        FOLEYS_SHOW_GUI_EDITOR_PALLETTE=0
         FOLEYS_SAVE_EDITED_GUI_IN_PLUGIN_STATE=0
         # JUCE_WEB_BROWSER and JUCE_USE_CURL would be on by default, but you might not need them.
         JUCE_WEB_BROWSER=0  # If you remove this, add `NEEDS_WEB_BROWSER TRUE` to the `juce_add_plugin` call
