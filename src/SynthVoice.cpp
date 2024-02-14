@@ -118,7 +118,7 @@ void SynthVoice::controllerMoved(int controllerNumber, int newControllerValue)
 void SynthVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
 {
 
-    //jassert(isPrepared);
+    jassert(isPrepared);
 
 
     if (!isVoiceActive())
@@ -192,7 +192,7 @@ float SynthVoice::computeOscOutput(float inputSample)
         //We can do it in one single cycle (doesn't matter if we sum here or later)
 
         //If above nyquist frequency stop
-        if (k * currentFrequency > getSampleRate() / 2) break;
+        if ((k * currentFrequency) > (getSampleRate() / 2)) break;
 
         //These are the same for both oscs
         float squareAmp = harmonicsSquare.at(k - 1);
