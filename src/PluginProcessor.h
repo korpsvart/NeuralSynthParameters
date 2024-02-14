@@ -147,6 +147,10 @@ private:
     bool updatedReverb = true;//Initially true so we create the first IR
 
 
+    //visualizer
+    foleys::MagicPlotSource* analyser = nullptr;
+
+
 
 
       //==============================================================================

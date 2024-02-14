@@ -74,6 +74,13 @@ FMPluginProcessor::FMPluginProcessor()
     magicState.addTrigger("loadFile", [&] { loadFile(); });
 
 
+    //Add analyser for input signal
+
+
+    analyser = magicState.createAndAddObject<foleys::MagicAnalyser>("Reference signal"); //for signal analyser
+    magicState.addBackgroundProcessing(analyser);
+
+
 
 
 
@@ -165,7 +172,7 @@ void FMPluginProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     synth->setCurrentPlaybackSampleRate(sampleRate);
 
 
-
+    analyser->prepareToPlay(sampleRate, samplesPerBlock);
 
 }
 
@@ -225,6 +232,8 @@ void FMPluginProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mi
 
     magicState.processMidiBuffer(midiMessages, buffer.getNumSamples());
 
+
+
     if (fileUpdated)
     {
 
@@ -238,6 +247,7 @@ void FMPluginProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mi
         torch::Dict<torch::IValue, torch::IValue> synthParams = estimateSynthParams(audioBuffer);
 
         updateAllParameters(synthParams);
+
     }
 
     if (updatedADSRa1)
@@ -310,6 +320,9 @@ void FMPluginProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mi
     }
 
     synth->renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
+
+
+    analyser->pushSamples(buffer);
 
     midiMessages.clear();
  
