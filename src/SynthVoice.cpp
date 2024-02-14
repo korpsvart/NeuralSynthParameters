@@ -48,7 +48,23 @@ SynthVoice::SynthVoice(juce::AudioProcessorValueTreeState* apvts)
     }
 
 
+    //Initialize the variables for convolutional reverb
+    //noise.setSize(1, irLength);
+    //time.setSize(1, irLength);
+    for (int i = 0; i < irLength; ++i) //skip first s
+        noise.setSample(0, i, juce::Random::getSystemRandom().nextFloat() * 2 - 1); // To have [-1, 1) range
+    noise.setSample(0, 0, 0.0); //set to zero first sample
+    for (int i = 0; i < irLength; ++i)
+        time.setSample(0, i, static_cast<float>(i) / getSampleRate()); //time ramp
+        //time.setSample(0, i, static_cast<float>(i) / static_cast<float>(irLength)); //time ramp
+
+
+    //ir.setSize(1, irLength);
+
+
 }
+
+
 
 bool SynthVoice::canPlaySound(juce::SynthesiserSound* sound)
 {
@@ -122,6 +138,8 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int sta
         startSample++;
     }
 
+
+    applyReverb(outputBuffer);
 
 
     bool active = adsrOsc1.isActive() || adsrOsc2.isActive();
@@ -200,8 +218,6 @@ float SynthVoice::computeOscOutput(float inputSample)
 
         output += ADSROsc * ampOsc * sineWave * lowpassAmp;
 
-
-
     }
 
     return output;
@@ -223,7 +239,7 @@ void SynthVoice::prepareToPlay(double sampleRate, int samplesPerBlock, int outpu
     adsrC.setSampleRate(sampleRate);
 
 
-    juce::dsp::ProcessSpec spec;
+    
     spec.maximumBlockSize = samplesPerBlock;
     spec.sampleRate = sampleRate;
     spec.numChannels = outputChannelsNumber;
@@ -234,6 +250,8 @@ void SynthVoice::prepareToPlay(double sampleRate, int samplesPerBlock, int outpu
         osc1[i].prepare(spec);
         osc2[i].prepare(spec);
     }
+
+
 
 
     isPrepared = true;
@@ -268,6 +286,39 @@ void SynthVoice::updateADSRc(float attack, float decay, float sustain, float rel
     adsrCParams.sustain = sustain;
     adsrCParams.release = release * 4;
     adsrC.setParameters(adsrCParams);
+
+}
+
+void SynthVoice::applyReverb(const juce::AudioBuffer<float>& audio)
+{
+
+    juce::AudioSampleBuffer abfs(audio);
+    juce::dsp::AudioBlock<float> block(abfs);
+    juce::dsp::ProcessContextReplacing<float> context(block);
+    convolution.process(context);
+
+
+
+}
+
+void SynthVoice::updateReverb()
+{
+
+    //Recompute the impulse response
+
+    float gain = *apvts->getRawParameterValue("REV_GAIN");
+    float decay = *apvts->getRawParameterValue("REV_DEC");
+    ir.setSize(1, irLength);
+    for (int i = 0; i < irLength; ++i)
+        ir.setSample(0, i, gain * std::exp(-decay * time.getSample(0, i)) * noise.getSample(0, i));
+
+
+    //Update convolution object
+
+
+    convolution.reset();
+    convolution.loadImpulseResponse(std::move(ir), getSampleRate(), juce::dsp::Convolution::Stereo::no, juce::dsp::Convolution::Trim::no, juce::dsp::Convolution::Normalise::no);
+    convolution.prepare(spec);
 
 }
 

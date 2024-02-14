@@ -68,8 +68,6 @@ private:
 
     //Synth variables
 
-    std::vector<juce::Synthesiser*> synths;
-
     juce::Synthesiser* synth;
 
     //Parameters
@@ -143,6 +141,10 @@ private:
 
     std::unique_ptr<juce::FileChooser> myChooser;
     bool fileUpdated = false;
+
+    //Reverb
+
+    bool updatedReverb = true;//Initially true so we create the first IR
 
 
 

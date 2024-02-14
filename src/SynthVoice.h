@@ -36,6 +36,10 @@ public:
     void updateADSRc(float attack, float decay, float sustain, float release);
 
 
+
+    void updateReverb();
+
+
 private:
 
 
@@ -67,9 +71,21 @@ private:
 
     float currentFrequency;
 
+    //Reverb
+
+    int irLength = 400;
+    juce::AudioBuffer<float> noise{ 1, irLength };
+    juce::AudioBuffer<float> time{ 1, irLength };
+
+    juce::AudioBuffer<float> ir{ 1, irLength }; //decaying impulse response
+
+    juce::dsp::Convolution convolution;
+
+    juce::dsp::ProcessSpec spec;
 
 
 
+    void applyReverb(const juce::AudioBuffer<float>& audio);
     
 
 };

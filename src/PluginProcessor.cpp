@@ -60,6 +60,9 @@ FMPluginProcessor::FMPluginProcessor()
     apvts.addParameterListener("SU_C", this);
     apvts.addParameterListener("RE_C", this);
 
+    apvts.addParameterListener("REV_GAIN", this);
+    apvts.addParameterListener("REV_DEC", this);
+
     myChooser = std::make_unique<juce::FileChooser>("Select an audio file to estimate the synthesizer parameters...",
         juce::File::getSpecialLocation(juce::File::userHomeDirectory),
         "*.wav");
@@ -69,6 +72,9 @@ FMPluginProcessor::FMPluginProcessor()
 
     //the JUCE_MODAL_LOOPS_PERMITTED=1 definition must be specified for browseForFileToOpen to work
     magicState.addTrigger("loadFile", [&] { loadFile(); });
+
+
+
 
 
 
@@ -172,6 +178,8 @@ void FMPluginProcessor::releaseResources()
     //Clear synths
     synth->clearSounds();
     synth->clearVoices();
+
+    free(synth);
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -288,6 +296,19 @@ void FMPluginProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mi
 
     }
 
+    if (updatedReverb)
+    {
+        updatedReverb = false;
+        for (int i = 0; i < synth->getNumVoices(); ++i)
+        {
+            if (auto voice = dynamic_cast<SynthVoice*>(synth->getVoice(i)))
+            {
+                voice->updateReverb();
+
+            }
+        }
+    }
+
     synth->renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
 
     midiMessages.clear();
@@ -302,22 +323,29 @@ void FMPluginProcessor::parameterChanged(const juce::String& parameterID, float 
 
    
     std::vector<std::string> tokens = split(parameterID.toStdString(), '_');
+    if (tokens[0]=="REV")
+    {
+        updatedReverb = true;
+    }
+    else {
+        if (tokens[1] == "A")
+        {
+            if (tokens[2] == "1")
+            {
+                updatedADSRa1 = true;
+            }
+            else
+            {
+                updatedADSRa2 = true;
+            }
+        }
+        else
+        {
+            updatedADSRc = true;
+        }
+    }
 
-    if (tokens[1] == "A")
-    {
-        if (tokens[2] == "1")
-        {
-            updatedADSRa1 = true;
-        }
-        else 
-        {
-            updatedADSRa2 = true;
-        }
-    }
-    else 
-    {
-        updatedADSRc = true;
-    }
+
 
 
 }
